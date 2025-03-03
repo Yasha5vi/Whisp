@@ -1,7 +1,21 @@
 import env from "dotenv";
-import express from "express"
 import connectDB from "./db/indexDB.js";
+import app from "./app.js";
 
 env.config(); 
 
-connectDB()     
+connectDB()
+.then(()=>{
+    app.on("error",(err)=>{
+        console.log("ERR : ",err);
+        throw err;
+    })
+    app.listen(process.env.PORT,()=>{
+        console.log(`App listening on ${process.env.PORT}`);
+    })
+})
+.catch((err)=>{
+    console.log("MONGO db connection failed",err);
+    process.exit(1);
+})    
+
