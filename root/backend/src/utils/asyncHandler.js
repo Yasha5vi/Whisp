@@ -1,6 +1,3 @@
-// try catch
-// basically baar baar 
-// async await likhne se accha ek utility bna di
 
 const asyncHandler = (fn)=>{
     async (req, res, next)=>{
@@ -17,7 +14,6 @@ const asyncHandler = (fn)=>{
 
 export  { asyncHandler };
 
-// promise vala method
 // const asyncHandler = (fn) => {
 //     (req, res, next)=>{
 //         Promise.resolve(fn(req, res, next))
