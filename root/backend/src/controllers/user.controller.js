@@ -8,9 +8,7 @@ const registerUser = asyncHandler( async (req,res) =>{
     const {firstName, lastName, email, username, password} = req.body
     const details = [firstName,lastName,email,username,password]
     
-    if(details.some((field)=>{
-        field?.trim === ""
-    }) || (!details[2].includes('@'))){
+    if(details.some(field => !field || field.trim() === "") || (!details[2].includes("@gmail.com"))){
         throw new ApiError(400,"Some details are missing or are not in correct format")
     }
 
@@ -45,4 +43,10 @@ const registerUser = asyncHandler( async (req,res) =>{
     
 })
 
-export { registerUser }
+const loginUser = asyncHandler( async(req, res)=>{
+    res.status(200).json({
+        message:"login here"
+    })
+})
+
+export { registerUser , loginUser }
