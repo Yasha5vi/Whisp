@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
 var saltingRounds = 10
 userSchema.pre("save",async function (next){
     if((this.isModified("password"))){
-        this.password = bcrypt.hash(this.password,saltingRounds)
+        this.password = await bcrypt.hash(this.password,saltingRounds)
     }
     next()
 })
@@ -83,7 +83,5 @@ userSchema.methods.generateRefreshToken = async function (){
         }
     )
 }
-
-userSchema.methods.generateRefreshToken = async function(){}
 
 export const User = mongoose.model("User",userSchema);
