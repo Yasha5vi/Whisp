@@ -123,13 +123,13 @@ const getSentRequest = asyncHandler( async(req,res) => {
 const getReceivedRequest = asyncHandler( async(req,res) => {
     // console.log("retrieveReceivedRequest Working")
     const user = await User.findById(req.user._id)
-    .populate("friendRequestRecieved","username email firstName lastName");
+    .populate("friendRequestReceived","username email firstName lastName");
 
     if(!user){
         throw new ApiError(404, "User not found")
     }
     return res.status(200).json(
-        new ApiResponse(200,user.friendRequestRecieved,"Received friend requests retrieved successfully")
+        new ApiResponse(200,user.friendRequestReceived,"Received friend requests retrieved successfully")
     )
 })
 
