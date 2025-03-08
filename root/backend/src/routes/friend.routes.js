@@ -17,8 +17,9 @@ router.route("/send").post(verifyJWT,addFriend);
 router.route("/accept").post(verifyJWT,acceptFriendRequest);
 router.route("/reject").post(verifyJWT,rejectFriendRequest);
 router.route("/remove").post(verifyJWT,removeFriend);
-router.route("/r_friend").post(verifyJWT,getFriends);
-router.route("/r_sent").post(verifyJWT,getSentRequest);
-router.route("/r_received").post(verifyJWT,getReceivedRequest);
+
+router.route("/getFriend").get(verifyJWT,getFriends);
+router.route("/getSent").get(verifyJWT,getSentRequest);
+router.route("/getReceived").get(verifyJWT,getReceivedRequest);
 
 export default router;
