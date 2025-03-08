@@ -36,6 +36,27 @@ const userSchema = new mongoose.Schema(
             type:String,
             required:[true, 'Password is Required'],
         },
+        friendRequestSent:[
+            {
+                type:mongoose.Schema.ObjectId,
+                ref:"User",
+                default:[]
+            }
+        ],
+        friendRequestRecieved:[
+            {
+                type:mongoose.Schema.ObjectId,
+                ref:"User",
+                default:[]
+            }
+        ],
+        friends:[
+            {
+                type:mongoose.Schema.ObjectId,
+                ref:"User",
+                default:[]
+            }
+        ],
         refreshToken:{
             type:String
         }

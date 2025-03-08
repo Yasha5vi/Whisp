@@ -1,4 +1,4 @@
-import express, { urlencoded } from "express"
+import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser";
 
@@ -14,7 +14,9 @@ app.use(express.static("public"))   // static files
 app.use(cookieParser())
 
 import userRouter from "./routes/user.routes.js";
+import friendRouter from "./routes/friend.routes.js"
 
 app.use("/api/users",userRouter);
+app.use("/api/friends",friendRouter);
 
-export default app;
+export default app; 
