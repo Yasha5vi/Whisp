@@ -14,7 +14,7 @@ const addFriend = asyncHandler( async(req,res) =>{
     // console.log(receiverId);
 
     const updateReceiver = await User.findByIdAndUpdate(receiverId,
-        { $addToSet:{ friendRequestRecieved:senderId } },
+        { $addToSet:{ friendRequestReceived:senderId } },
         { new:true }
     );
     const updateSender = await User.findByIdAndUpdate(senderId,
@@ -60,7 +60,7 @@ const acceptFriendRequest = asyncHandler( async(req,res)=>{
     const { senderId } = req.body
     const updateReceiver = await User.findByIdAndUpdate(receiverId,
         {
-            $pull:{friendRequestRecieved:senderId},
+            $pull:{friendRequestReceived:senderId},
             $addToSet:{friends:senderId}
         },
         { new: true }
@@ -107,7 +107,7 @@ const rejectFriendRequest = asyncHandler( async(req,res) => {
     }
 })
 
-const retrieveSentRequest = asyncHandler( async(req,res) => {
+const getSentRequest = asyncHandler( async(req,res) => {
     // console.log("retrieveSentRequest Working");
     const user = await User.findById(req.user._id)
     .populate("friendRequestSent","username email firstName lastName");
@@ -120,7 +120,7 @@ const retrieveSentRequest = asyncHandler( async(req,res) => {
     );
 })
 
-const retrieveReceivedRequest = asyncHandler( async(req,res) => {
+const getReceivedRequest = asyncHandler( async(req,res) => {
     // console.log("retrieveReceivedRequest Working")
     const user = await User.findById(req.user._id)
     .populate("friendRequestRecieved","username email firstName lastName");
@@ -133,7 +133,7 @@ const retrieveReceivedRequest = asyncHandler( async(req,res) => {
     )
 })
 
-const retrieveFriends = asyncHandler( async(req,res) => {
+const getFriends = asyncHandler( async(req,res) => {
 
     const user = await User.findById(req.user._id);
     if(!user){
@@ -152,7 +152,7 @@ export {
     removeFriend,
     acceptFriendRequest,
     rejectFriendRequest,
-    retrieveReceivedRequest,
-    retrieveSentRequest,
-    retrieveFriends
+    getReceivedRequest,
+    getSentRequest,
+    getFriends
 }

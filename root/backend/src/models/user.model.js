@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
                 default:[]
             }
         ],
-        friendRequestRecieved:[
+        friendRequestReceived:[
             {
                 type:mongoose.Schema.ObjectId,
                 ref:"User",
