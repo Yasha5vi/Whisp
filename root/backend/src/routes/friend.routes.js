@@ -6,7 +6,8 @@ import {
     acceptFriendRequest,
     rejectFriendRequest,
     retrieveSentRequest,
-    retrieveReceivedRequest
+    retrieveReceivedRequest,
+    retrieveFriends
 } from "../controllers/friend.controller.js";
 
 
@@ -16,6 +17,7 @@ router.route("/send").post(verifyJWT,addFriend);
 router.route("/accept").post(verifyJWT,acceptFriendRequest);
 router.route("/reject").post(verifyJWT,rejectFriendRequest);
 router.route("/remove").post(verifyJWT,removeFriend);
+router.route("/r_friend").post(verifyJWT,retrieveFriends);
 router.route("/r_sent").post(verifyJWT,retrieveSentRequest);
 router.route("/r_received").post(verifyJWT,retrieveReceivedRequest);
 
