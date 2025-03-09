@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
   
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('/fonts/PublicSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('/fonts/PublicSans-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+/* Apply globally */
+html {
+  font-family: 'Public Sans', sans-serif;
+}
+
 :root {
   --main: #88aaee;
   --overlay: rgba(0, 0, 0, 0.8); /* background color overlay for alert dialogs, modals, etc. */

@@ -7,6 +7,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Public Sans', 'sans-serif'], // Override Tailwind's default sans-serif
+      },
       colors: {
         main: 'var(--main)',
         overlay: 'var(--overlay)',
