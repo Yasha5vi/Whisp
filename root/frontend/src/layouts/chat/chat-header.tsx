@@ -1,8 +1,10 @@
-import { Bell, PlusCircle } from "lucide-react"
+import { Bell} from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import CreateChat from "@/components/chat/create-chat"
+
 
 export default function ChatHeader() {
   return (
@@ -30,11 +32,9 @@ export default function ChatHeader() {
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
 
-        <Button className="flex items-center gap-2 bg-transparent hover:bg-gray-200 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md">
-          <PlusCircle className="w-4 h-4" />
-          Create a chat
-        </Button>
+        <CreateChat/>
       </div>
     </header>
   )
 }
+

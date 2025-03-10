@@ -1,12 +1,11 @@
-"use client"
-
 import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import SearchBar from "@/components/chat/search-bar"
-import ChatList from "@/components/chat/chat-list"
-import NavigationBar from "@/components/chat/navigation-bar"
 import { useChat } from "@/contexts/chat-context"
 import { useParams } from "react-router-dom"
+import SearchBar from "@/components/chat/search-bar"
+import ChatList from "@/components/chat/chat-list"
+
+
 
 export default function ChatSidebar() {
   const { id } = useParams<{ id: string }>()
@@ -64,18 +63,24 @@ export default function ChatSidebar() {
       message: "I have some big news! Guess what? I'm getti",
       time: "4 weeks ago",
     },
+    {
+      id: "8",
+      avatar: "/placeholder.svg?height=40&width=40",
+      name: "Yashasvi Rajput",
+      message: "Bhai mere se thoda gyan lele",
+      time: "4 weeks ago",
+    },
   ]
 
-  // Use ref to prevent multiple initializations
   useEffect(() => {
     if (!initializedRef.current) {
       setChats(chatItems)
       
-      // If URL has an ID, select that chat, otherwise select the first chat if nothing is selected
+      // If URL has an ID, select that chat, otherwise select the first chat
       if (id) {
         selectChat(id)
       } else if (!selectedChatId) {
-        selectChat("1")
+        selectChat("1") 
       }
       
       initializedRef.current = true
@@ -92,7 +97,7 @@ export default function ChatSidebar() {
       <ScrollArea className="flex-1 bg-white dark:bg-gray-950">
         <ChatList />
       </ScrollArea>
-      <NavigationBar />
     </div>
   )
 }
+
