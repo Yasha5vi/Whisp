@@ -7,11 +7,13 @@ const conversationSchema = new mongoose.Schema(
             enum:["one-to-one","group"],
             required:true
         },
-        participants:{
-            type:mongoose.Types.ObjectId,
-            ref:"User",
-            required:true
-        },
+        participants:[
+            {
+                type:mongoose.Types.ObjectId,
+                ref:"User",
+                required:true
+            }
+        ],
         lastMessage: {
             content: { type: String },
             createdAt: { type: Date }

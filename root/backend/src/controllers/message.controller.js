@@ -29,73 +29,74 @@ const findOrCreateConversation = async(userId1,userId2)=>{
 }
 
 const sendMessage = asyncHandler( async(req,res)=>{
-    console.log("sendMessage working");
-    // const senderId = req.user._id;
-    // const { receiverId, content } = req.body;
+    // console.log("sendMessage working");
+    const senderId = req.user._id;
+    const { receiverId, content } = req.body;
     
-    // if(receiverId && content){
-    //     // chat find kr and message bnake return kra de 
-    //     const conversation = await findOrCreateConversation(senderId,receiverId);
-    //     const newMessage = new Message(
-    //         {
-    //             conversationId:conversation._id,
-    //             senderId:senderId,
-    //             content:content
-    //         }
-    //     );
-    //     await newMessage.save();
-    //     conversation.lastMessage = {
-    //         content,
-    //         createdAt:newMessage.createdAt
-    //     }
-    //     await conversation.save();
+    if(receiverId && content){
+        // chat find kr and message bnake return kra de 
+        const conversation = await findOrCreateConversation(senderId,receiverId);
+        const newMessage = new Message(
+            {
+                conversationId:conversation._id,
+                senderId:senderId,
+                content:content
+            }
+        );
+        await newMessage.save();
+        conversation.lastMessage = {
+            content,
+            createdAt:newMessage.createdAt
+        }
+        await conversation.save();
 
-    //     const io = req.app.get("io");
-    //     io.to(receiverId).emit("message", newMessage);
+        const io = req.app.get("io");
+        io.to(receiverId).emit("message", newMessage);
+        // console.log("hree");
+        return res.status(200).json(
+            new ApiResponse(200,newMessage,"Message Sent Successfully")
+        );
 
-    //     return res.status(200).json(
-    //         new ApiResponse(200,newMessage,"Message Sent Successfully")
-    //     );
-    // }else{
-    //     throw new ApiError(500,"Error Sending Message ");
-    // }
+    }else{
+        throw new ApiError(500,"Error Sending Message ");
+    }
 });
 
 const getMessage = asyncHandler( async(req,res)=>{
-    console.log("getMessage working");
-    // const { conversationId } = req.body;
-    // // needs to be updated later
-    // const page = 0;
-    // const limit = 20;
-
-    // const messages = await Message.find({conversationId})
-    // .sort({createdAt:-1})
-    // .skip(page*limit)
-    // .limit(limit);
-
-    // if(messages){
-    //     return res.status(200).json(
-    //         new ApiResponse(200,messages,"Messages fetched successfully")
-    //     )
-    // }else{
-    //     throw new ApiError(500,"Error fetching Messages");
-    // }
+    // console.log("getMessage working");
+    const { conversationId } = req.query;
+    // needs to be updated later
+    const page = 0;
+    const limit = 20;
+    // console.log(conversationId);
+    const messages = await Message.find({conversationId})
+    .sort({createdAt:-1})
+    .skip(page*limit)
+    .limit(limit);
+   
+    if(messages){
+        return res.status(200).json(
+            new ApiResponse(200,messages,"Messages fetched successfully")
+        )
+    }else{
+        throw new ApiError(500,"Error fetching Messages");
+    }
 })
 
 const getChats = asyncHandler( async(req,res)=>{
-    console.log("getChats working");
-    // const userId = req.user._id;
-    // const chats = await Conversation.find({
-    //     participants:userId
-    // }).sort({ updatedAt:-1 });
+    // console.log("getChats working");
+    const userId = req.user._id;
+    const chats = await Conversation.find({
+        participants:userId
+    }).sort({ updatedAt:-1 });
     
-    // if(chats){
-    //     return res.status(200).json(
-    //         new ApiResponse(200,chats,"Chats fetched Successfully")
-    //     )
-    // }else{
-    //     throw new ApiError(500,"Error fetching Chats");
-    // }
+    if(chats){
+        return res.status(200).json(
+            new ApiResponse(200,chats,"Chats fetched Successfully")
+        )
+    }else{
+        throw new ApiError(500,"Error fetching Chats");
+    }
 })
 
 const deleteChats = asyncHandler( async(req,res)=>{
