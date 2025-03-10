@@ -1,16 +1,32 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import ChatLayout from "./components/chat/chat-layout"
-import { Button } from "./components/ui/button"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import Login from "@/pages/Login"
+import Register from "@/pages/Register"
+import ChatLayout from "@/components/chat/chat-layout"
+import Chat from "./pages/Chat"
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Button>Click me</Button>} />
-        <Route path="/chat" element={<ChatLayout />} />
+        {/* Auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<div className="p-12 text-center">Forgot Password Page (Coming Soon)</div>} />
+        
+        {/* Chat routes */}
+        <Route path="/chat" element={<ChatLayout />}>
+          <Route index element={<Chat />} />
+          <Route path=":id" element={<Chat />} />
+        </Route>
+        
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/chat" replace />} />
+
+        
+        {/* Default redirects */}
+        <Route path="/" element={<Navigate to="/chat" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   )
 }
-
-export default App

@@ -1,10 +1,19 @@
-"use client"
-
+import { useNavigate } from "react-router-dom"
 import ChatListItem from "./chat-list-item"
 import { useChat } from "@/contexts/chat-context"
 
 export default function ChatList() {
-  const { chats, selectChat } = useChat()
+  const { chats, selectedChatId, selectChat } = useChat()
+  const navigate = useNavigate()
+
+  const handleChatSelect = (chatId: string) => {
+    navigate(`/chat/${chatId}`)
+    
+    // Also directly select the chat to ensure state is updated
+    if (chatId !== selectedChatId) {
+      selectChat(chatId)
+    }
+  }
 
   return (
     <div>
@@ -16,8 +25,8 @@ export default function ChatList() {
           name={item.name}
           message={item.message}
           time={item.time}
-          active={item.active}
-          onClick={() => selectChat(item.id)}
+          active={item.id === selectedChatId}
+          onClick={() => handleChatSelect(item.id)}
         />
       ))}
     </div>

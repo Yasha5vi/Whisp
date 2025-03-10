@@ -1,8 +1,10 @@
+"use client"
+
 import ChatHeader from "./chat-header"
 import ChatSidebar from "./chat-sidebar"
-import ChatArea from "./chat-area"
 import { ChatProvider } from "@/contexts/chat-context"
 import { useChat } from "@/contexts/chat-context"
+import { Outlet } from "react-router-dom"
 
 function ChatLayoutContent() {
   const { isSidebarOpen, isMobileView, selectedChatId, closeSidebar } = useChat()
@@ -27,13 +29,13 @@ function ChatLayoutContent() {
         {/* Mobile overlay when sidebar is open */}
         {isMobileView && isSidebarOpen && selectedChatId && (
           <div 
-            className="fixed inset-0  z-10"
+            className="fixed inset-0 z-10"
             onClick={closeSidebar}
           />
         )}
         
-        {/* Chat area */}
-        <ChatArea />
+        {/* Chat content area - using Outlet for nested routes */}
+        <Outlet />
       </div>
     </div>
   )
@@ -46,4 +48,3 @@ export default function ChatLayout() {
     </ChatProvider>
   )
 }
-

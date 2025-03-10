@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
 
 export interface ChatItem {
   id: string
@@ -36,6 +36,11 @@ interface ChatContextType {
   currentMessage: string
   setCurrentMessage: (message: string) => void
   sendMessage: (content: string) => void
+  isSidebarOpen: boolean
+  toggleSidebar: () => void
+  closeSidebar: () => void
+  openSidebar: () => void
+  isMobileView: boolean
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -45,14 +50,34 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [chatMessages, setChatMessages] = useState<Record<string, Message[]>>({})
   const [currentMessage, setCurrentMessage] = useState('')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isMobileView, setIsMobileView] = useState(false)
 
-  const selectChat = (id: string) => {
-    setSelectedChatId(id)
-    setChats(prev => prev.map(chat => ({
-      ...chat,
-      active: chat.id === id
-    })))
-  }
+  // Detect mobile view
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobileView(window.innerWidth < 768)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
+
+  const selectChat = useCallback((id: string) => {
+    if (id !== selectedChatId) {
+      setSelectedChatId(id)
+      setChats(prev => prev.map(chat => ({
+        ...chat,
+        active: chat.id === id
+      })))
+      
+      // Close sidebar automatically on mobile when selecting a chat
+      if (isMobileView) {
+        setIsSidebarOpen(false)
+      }
+    }
+  }, [selectedChatId, isMobileView])
 
   const updateChatMessages = (id: string, messages: Message[]) => {
     setChatMessages(prev => ({
@@ -71,9 +96,27 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       time: "Just now"
     }
     
+    // Update chat messages
     updateChatMessages(selectedChatId, [...(chatMessages[selectedChatId] || []), newMessage])
+    
+    // Update the chat list item to show the last message
+    setChats(prev => prev.map(chat => {
+      if (chat.id === selectedChatId) {
+        return {
+          ...chat,
+          message: content.length > 30 ? content.substring(0, 30) + "..." : content,
+          time: "Just now"
+        }
+      }
+      return chat
+    }))
+    
     setCurrentMessage('')
   }
+  
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev)
+  const closeSidebar = () => setIsSidebarOpen(false)
+  const openSidebar = () => setIsSidebarOpen(true)
 
   return (
     <ChatContext.Provider
@@ -87,6 +130,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         currentMessage,
         setCurrentMessage,
         sendMessage,
+        isSidebarOpen,
+        toggleSidebar,
+        closeSidebar,
+        openSidebar,
+        isMobileView
       }}
     >
       {children}

@@ -11,9 +11,23 @@ interface ChatListItemProps {
 }
 
 export default function ChatListItem({ id, avatar, name, message, time, active = false, onClick }: ChatListItemProps) {
+  // Check if this message appears to be from the user based on the time
+  const isLastMessageFromUser = time === "Just now" || message.startsWith("You: ");
+  
+  // Format the message to indicate if it was sent by the user
+  const displayMessage = isLastMessageFromUser && !message.startsWith("You: ") 
+    ? `You: ${message}`
+    : message;
+  
   return (
     <div 
-      className={`flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer ${active ? "bg-gray-50 dark:bg-gray-900" : ""}`}
+      className={`
+        flex items-start gap-3 p-4 cursor-pointer
+        hover:bg-gray-100 dark:hover:bg-gray-800 
+        ${active 
+          ? "bg-gray-100 dark:bg-gray-800" 
+          : "bg-white dark:bg-gray-950"}
+      `}
       onClick={onClick}
     >
       <Avatar className="h-10 w-10">
@@ -22,10 +36,18 @@ export default function ChatListItem({ id, avatar, name, message, time, active =
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
-          <span className="font-medium">{name}</span>
-          <span className="text-xs text-gray-400">{time}</span>
+          <span className={`font-medium ${active ? "text-gray-900 dark:text-white" : "text-gray-800 dark:text-gray-100"}`}>
+            {name}
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{time}</span>
         </div>
-        <p className="text-sm text-gray-400 truncate">{message}</p>
+        <p className={`text-sm truncate ${
+          isLastMessageFromUser 
+            ? "font-medium text-gray-700 dark:text-gray-300" 
+            : "text-gray-500 dark:text-gray-400"
+        }`}>
+          {displayMessage}
+        </p>
       </div>
     </div>
   )

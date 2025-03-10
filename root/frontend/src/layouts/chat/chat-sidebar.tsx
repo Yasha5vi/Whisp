@@ -1,8 +1,10 @@
+"use client"
+
 import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import SearchBar from "./search-bar"
-import ChatList from "./chat-list"
-import NavigationBar from "./navigation-bar"
+import SearchBar from "@/components/chat/search-bar"
+import ChatList from "@/components/chat/chat-list"
+import NavigationBar from "@/components/chat/navigation-bar"
 import { useChat } from "@/contexts/chat-context"
 import { useParams } from "react-router-dom"
 
@@ -64,15 +66,16 @@ export default function ChatSidebar() {
     },
   ]
 
+  // Use ref to prevent multiple initializations
   useEffect(() => {
     if (!initializedRef.current) {
       setChats(chatItems)
       
-      // If URL has an ID, select that chat, otherwise select the first chat
+      // If URL has an ID, select that chat, otherwise select the first chat if nothing is selected
       if (id) {
         selectChat(id)
       } else if (!selectedChatId) {
-        selectChat("1") 
+        selectChat("1")
       }
       
       initializedRef.current = true
@@ -93,4 +96,3 @@ export default function ChatSidebar() {
     </div>
   )
 }
-

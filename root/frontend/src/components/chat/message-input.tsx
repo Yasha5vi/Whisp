@@ -1,5 +1,3 @@
-"use client"
-
 import { KeyboardEvent } from "react"
 import { Smile, Paperclip, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

@@ -1,20 +1,28 @@
-"use client"
-
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ChatAreaHeader from "./chat-area-header"
 import MessageList from "./message-list"
 import MessageInput from "./message-input"
 import { useChat } from "@/contexts/chat-context"
+import { useParams } from "react-router-dom"
 
 export default function ChatArea() {
-  const { selectedChatId, chats, chatMessages, setChatMessages } = useChat()
+  const { id } = useParams<{ id: string }>()
+  const { selectedChatId, selectChat, chats, chatMessages, setChatMessages, isMobileView, isSidebarOpen } = useChat()
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  
+  // Effect to handle URL parameter changes
+  useEffect(() => {
+    if (id && id !== selectedChatId) {
+      selectChat(id)
+    }
+  }, [id, selectedChatId, selectChat])
   
   const selectedChat = chats.find(chat => chat.id === selectedChatId)
   
+  // Effect to initialize default messages
   useEffect(() => {
-    // Initialize default messages for chats that don't have any
-    if (selectedChatId && !chatMessages[selectedChatId]) {
+    if (selectedChatId && selectedChat && !chatMessages[selectedChatId]) {
       const defaultMessages = [
         {
           id: "1",
@@ -27,7 +35,20 @@ export default function ChatArea() {
       ]
       setChatMessages(selectedChatId, defaultMessages)
     }
-  }, [selectedChatId, selectedChat])
+  }, [selectedChatId, selectedChat, chatMessages, setChatMessages])
+
+  // Effect to scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
+  }, [chatMessages, selectedChatId])
+
+  // On mobile, if sidebar is open and covering the whole screen, hide chat area content
+  if (isMobileView && isSidebarOpen) {
+    return <div className="hidden md:block flex-1 bg-background"></div>
+  }
 
   if (!selectedChatId || !selectedChat) {
     return (
@@ -40,9 +61,9 @@ export default function ChatArea() {
   return (
     <div className="flex-1 flex flex-col bg-background">
       <ChatAreaHeader selectedChat={selectedChat} />
-      <ScrollArea className="flex-1 p-4">
+      <div ref={scrollContainerRef} className="flex-1 p-4 overflow-y-auto">
         <MessageList messages={chatMessages[selectedChatId] || []} />
-      </ScrollArea>
+      </div>
       <MessageInput />
     </div>
   )
