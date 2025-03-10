@@ -22,19 +22,25 @@ connectDB()
 })    
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server,{
+    cors:{
+        origin: process.env.CORS_ORIGIN, // allow requests from your client
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
 app.set("io", io);
 
 // socket - client
 io.on("connection",(socket)=>{
     console.log("user connect via id : ",socket.id);
-    
     // client login krega so ek room bna de
     // using join event
-    socket.on("join", ( userId )=>{
-        socket.userId = userId;
+    socket.on("joinRoom", ( userId )=>{
+        socket.userId = userId; 
         socket.join(userId);
-        console.log(`Socket ${socket.id} joined room ${userId}`);
+        console.log(`Socket ${socket.id} joined room ${userId}\n`);
     })  
 
     socket.on("disconnect",()=>{
