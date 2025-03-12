@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler( async (req,res) =>{
-
+    // console.log("here");
     const {firstName, lastName, email, username, password} = req.body
     const details = [firstName,lastName,email,username,password]
     
@@ -18,7 +18,7 @@ const registerUser = asyncHandler( async (req,res) =>{
         $or : [{ username }, { email }]
     })
     if(exits){
-        throw new ApiError(409,"User already exists");
+        throw new ApiError(409,"Username or email, already in use");
     }
 
     const newUser = await User.create({
@@ -35,7 +35,7 @@ const registerUser = asyncHandler( async (req,res) =>{
     if(createdUser){
         // console.log(createdUser)
         return res.status(200).json(
-            new ApiResponse(200,createdUser,"user created successfully")
+            new ApiResponse(200,createdUser,"User registered, please login")
         )
     }else{
         throw new ApiError(500,"DB is not working properly")
@@ -65,9 +65,11 @@ const loginUser = asyncHandler( async(req, res)=>{
 
                 // console.log(user.refreshToken)
                 const options = {
-                    httpOnly:true,
-                    secure:true
-                }
+                    httpOnly: true,
+                    secure: (process.env.NODE_ENV === "production"), 
+                    sameSite: "lax",
+                    path: "/"  
+                };
 
                 const data = {
                     _id:user._id,
@@ -77,6 +79,8 @@ const loginUser = asyncHandler( async(req, res)=>{
                     lastName:user.lastName,
                 }
 
+                res.clearCookie("accessToken", { path: "/" });
+                res.clearCookie("refreshToken", { path: "/" });
                 // console.log(data);
                 return res.status(200)
                 .cookie("accessToken",accessToken,options)

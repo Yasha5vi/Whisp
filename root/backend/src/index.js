@@ -37,10 +37,10 @@ io.on("connection",(socket)=>{
     console.log("user connect via id : ",socket.id);
     // client login krega so ek room bna de
     // using join event
-    socket.on("joinRoom", ( userId )=>{
-        socket.userId = userId; 
-        socket.join(userId);
-        console.log(`Socket ${socket.id} joined room ${userId}\n`);
+    socket.on("joinRoom", ( roomId )=>{
+        // socket.userId = userId; 
+        socket.join(roomId);
+        console.log(`Socket ${socket.id} joined room ${roomId}\n`);
     })  
 
     socket.on("disconnect",()=>{

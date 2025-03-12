@@ -24,12 +24,21 @@ const addFriend = asyncHandler( async(req,res) =>{
     if(!updateReceiver || !updateSender){
         throw new ApiError(500,"Error sending friend request")
     }else{
-        return res.status(200).json(
-            new ApiResponse(200,"Friend Request Sent")
-        )
+        const io = req.app.get("io");
+        if(io){
+            io.to(receiverId).emit("friendRequestUpdate", {
+                action:"sent",
+                senderId,
+                receiverId     
+            });
+            return res.status(200).json(
+                new ApiResponse(200,"Friend Request Sent")
+            )
+        }else{
+            throw new ApiError(500,"Socket.io instance not found")
+        }
     }
 })
-
 
 const removeFriend = asyncHandler( async(req,res)=>{
     // console.log("removeFriend working")
@@ -76,9 +85,19 @@ const acceptFriendRequest = asyncHandler( async(req,res)=>{
     if(!updateReceiver || !updateSender){
         throw new ApiError(500,"Error accepting friend request ")
     }else{
-        return res.status(200).json(
-            new ApiResponse(200,"Friend Request Accepted")
-        )
+        const io = req.app.get("io");
+        if(io){
+            io.to(senderId).emit("friendRequestUpdate", {
+                action: "accepted",
+                senderId,
+                receiverId,     
+            });
+            return res.status(200).json(
+                new ApiResponse(200,"Friend Request Accepted")
+            )
+        }else{
+            throw new ApiError(500,"Socket.io instance not found")
+        }
     }
 })
 
@@ -86,7 +105,7 @@ const rejectFriendRequest = asyncHandler( async(req,res) => {
     // console.log("RejectFriendRequest working");
     const receiverId = req.user._id
     const { senderId } = req.body;
-
+    
     const updateReceiver = await User.findByIdAndUpdate(
         receiverId,
         { $pull: { friendRequestReceived: senderId } },
@@ -97,13 +116,56 @@ const rejectFriendRequest = asyncHandler( async(req,res) => {
         { $pull: { friendRequestSent: receiverId } },
         { new: true }
     );
-
+    
     if(!updateReceiver || !updateSender){
         throw new ApiError(500,"Error rejecting friend request")
     }else{
-        return res.status(200).json(
-            new ApiResponse(200,"Friend Request Rejected")
-        )
+        const io = req.app.get("io");
+        if(io){
+            io.to(senderId).emit("friendRequestUpdate", {
+                action: "rejected",
+                senderId,
+                receiverId     
+            });
+            return res.status(200).json(
+                new ApiResponse(200,"Friend Request Rejected")
+            )
+        }else{
+            throw new ApiError(500,"Socket.io instance not found")
+        }
+    }
+})
+
+const removeFriendRequest = asyncHandler( async(req,res)=>{
+    const senderId = req.user._id
+    const { receiverId } = req.body
+    // console.log(senderId);
+    // console.log(receiverId);
+
+    const updateReceiver = await User.findByIdAndUpdate(receiverId,
+        { $pull: { friendRequestReceived:senderId } },
+        { new:true }
+    );
+    const updateSender = await User.findByIdAndUpdate(senderId,
+        { $pull: { friendRequestSent:receiverId } },
+        { new:true }
+    );
+    if(!updateReceiver || !updateSender){
+        throw new ApiError(500,"Error sending friend request")
+    }else{
+        const io = req.app.get("io");
+        if(io){
+            io.to(receiverId).emit("friendRequestUpdate", {
+                action: "removed",
+                senderId,
+                receiverId     
+            });
+            return res.status(200).json(
+                new ApiResponse(200,"Friend Request Removed Successfully")
+            )
+        }else{
+            throw new ApiError(500,"Socket.io instance not found")
+        }
     }
 })
 
@@ -152,6 +214,7 @@ export {
     removeFriend,
     acceptFriendRequest,
     rejectFriendRequest,
+    removeFriendRequest,
     getReceivedRequest,
     getSentRequest,
     getFriends

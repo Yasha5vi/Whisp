@@ -5,21 +5,38 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import axios from "axios"
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     username: "",
     password: "",
-    confirmPassword: ""
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
     setFormData(prev => ({ ...prev, [id]: value }))
+  }
+
+  const handleClick = async ()=>{
+    // console.log(formData);
+    try{
+      const res = await axios.post("http://localhost:3000/api/users/register",formData);
+      setMessage(res.data.message);
+    }catch(err : unknown){
+      if (axios.isAxiosError(err)) {
+        const msg = err.response?.data?.message || "something went wrong";
+        setMessage(msg);
+        console.error("Request failed:", err.response?.data?.message || err.message);
+      } else {
+        console.error("An unexpected error occurred:", err);
+      }
+    }
   }
 
   return (
@@ -33,12 +50,23 @@ export default function Register() {
         </CardHeader>
         <CardContent className="p-6 pt-8 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-lg font-base">Full Name</Label>
+            <Label htmlFor="firstName" className="text-lg font-base">First Name</Label>
             <Input 
-              id="name" 
-              value={formData.name}
+              id="firstName" 
+              value={formData.firstName}
               onChange={handleChange}
-              placeholder="Enter your full name"
+              placeholder="Enter your first name"
+              className="h-12 border-2 border-border bg-bg placeholder:text-text/50 focus:translate-x-1 focus:translate-y-1 focus:shadow-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="text-lg font-base">Last Name</Label>
+            <Input 
+              id="lastName" 
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter your last name"
               className="h-12 border-2 border-border bg-bg placeholder:text-text/50 focus:translate-x-1 focus:translate-y-1 focus:shadow-none"
             />
           </div>
@@ -88,34 +116,13 @@ export default function Register() {
               </Button>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-lg font-base">Confirm Password</Label>
-            <div className="relative">
-              <Input 
-                id="confirmPassword" 
-                type={showConfirmPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm your password"
-                className="h-12 border-2 border-border bg-bg pr-12 placeholder:text-text/50 focus:translate-x-1 focus:translate-y-1 focus:shadow-none"
-              />
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2"
-              >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </Button>
-            </div>
-          </div>
+          <p className="flex item-center justify-center">{message}</p>
         </CardContent>
         <CardFooter className="p-6 pt-2 flex flex-col gap-4">
           <Button 
             type="submit" 
             className="w-full h-12 font-base text-lg bg-main text-mtext border-2 border-border shadow-shadow hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all"
+            onClick={handleClick}
           >
             Create Account <ArrowRight className="ml-2 h-5 w-5" />
           </Button>

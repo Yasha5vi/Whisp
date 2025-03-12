@@ -15,8 +15,8 @@ const conversationSchema = new mongoose.Schema(
             }
         ],
         lastMessage: {
-            content: { type: String },
-            createdAt: { type: Date }
+            content: { type: String, default: "No message yet" },
+            createdAt: { type: Date, default: null }
         }
     },{ timestamps:true }
 )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,13 +24,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlusCircle, Search, UserPlus, MessageSquarePlus } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useFriends } from '@/contexts/friendContext'
+import axios from 'axios'
+import { useAuth } from '@/contexts/authContext'
+import { useSocket } from "@/contexts/socketContext"
+import { useChat } from '@/contexts/chat-context'
+import { useNavigate } from 'react-router-dom'
+import { Socket } from 'socket.io-client'
 
-// Mock data for demonstration
-const mockFriends = [
-  { id: 1, name: "Alex Smith", username: "@alex", status: "online", avatar: "/avatars/alex.png" },
-  { id: 2, name: "Jamie Brown", username: "@jamie", status: "offline", avatar: "/avatars/jamie.png" },
-  { id: 3, name: "Taylor Johnson", username: "@taylor", status: "online", avatar: "/avatars/taylor.png" },
-]
+// // Mock data for demonstration
+// const mockFriends = [
+//   { id: 1, name: "Alex Smith", username: "@alex", status: "online", avatar: "/avatars/alex.png" },
+//   { id: 2, name: "Jamie Brown", username: "@jamie", status: "offline", avatar: "/avatars/jamie.png" },
+//   { id: 3, name: "Taylor Johnson", username: "@taylor", status: "online", avatar: "/avatars/taylor.png" },
+// ]
 
 export default function CreateChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -39,33 +46,111 @@ export default function CreateChat() {
   const [isAddingFriend, setIsAddingFriend] = useState(false)
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null)
   const [newFriendUsername, setNewFriendUsername] = useState("")
+  const [message,setMessage] = useState("Enter your friend's username to send them a friend request");
+  const { friends, sendFriendRequest ,friendRequestsSent } = useFriends();
+  const { user } = useAuth();
+  const socket = useSocket();
+  // const socket = useSocket();
+  // const { sendMessage } = useChat()
+  const navigate = useNavigate();
+  
+  const handleCreateChat = async () => {
 
-  const filteredFriends = mockFriends.filter(friend => 
-    friend.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    friend.username.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const handleCreateChat = () => {
     if (!selectedFriend) return
     setIsCreatingChat(true)
     // Simulate API call
-    setTimeout(() => {
-      setIsCreatingChat(false)
-      setIsOpen(false)
-      setSelectedFriend(null)
-      // Here you would navigate to the new chat
-    }, 1000)
+    // console.log(user);
+    try {
+      const res = await axios.post("http://localhost:3000/api/message/createConversation",{
+        userId1:user._id,
+        userId2:selectedFriend
+      },{withCredentials:true});
+      // console.log(user);
+      // console.log(res.data);
+      if(res.data.message === "chat created" && socket){
+        setTimeout(async() => {
+          setIsCreatingChat(false)
+          setIsOpen(false)
+          setSelectedFriend(null)
+          // Here you would navigate to the new chat
+          navigate("/chat");
+        }, 1000)
+      }else{
+        setTimeout(async() => {
+          setIsCreatingChat(false)
+          setIsOpen(false)
+          setSelectedFriend(null)
+          // Here you would navigate to the new chat
+          navigate(`/chat/${res.data.data._id}`)
+        }, 1000)
+      }
+    } catch (error: unknown) {
+      // Type narrow the error.
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
   }
 
-  const handleAddFriend = () => {
+  const isAlreadyFriend = (id:any)=>{
+    for(let i=0;i<friends.length;i++){
+      if(id === friends[i].id){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const isAlreadySent = (id:any)=>{
+    for(let i=0;i<friendRequestsSent.length;i++){
+      if(id === friendRequestsSent[i].id){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const handleAddFriend = async () => {
     if (!newFriendUsername) return
     setIsAddingFriend(true)
     // Simulate API call
+    try{
+      const res = await axios.post("http://localhost:3000/api/message/getUser",{
+        username:newFriendUsername,
+      },{withCredentials:true})
+
+      // console.log(res.data.data._id);
+      // console.log(user._id);
+      // console.log(isAlreadyFriend(res.data.data._id));
+      if(res.data.data._id === user._id){
+        setMessage("Friendship is great, but how about adding someone new?")
+      }else if(isAlreadyFriend(res.data.data._id)){
+        setMessage(`${newFriendUsername} is already your friend`)
+      }else if(isAlreadySent(res.data.data._id)){
+        setMessage(`You have already sent ${newFriendUsername} a friend request`)
+      }else{
+        const id = res.data.data._id;
+        const username = res.data.data.username;
+        const name = res.data.data.firstName+' '+res.data.data.lastName;
+        sendFriendRequest({id,name,username});
+        setMessage("Friend Request Sent");
+      }
+    }catch(error:unknown){
+      if (error instanceof Error) {
+        setMessage("Please enter the correct username");
+        console.error("Error message:", error.message);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
+    setIsAddingFriend(false)
+    setNewFriendUsername("")
     setTimeout(() => {
-      setIsAddingFriend(false)
-      setNewFriendUsername("")
+      setMessage("Enter your friend's username to send them a friend request")
       // Show success feedback
-    }, 1000)
+    }, 3000)
   }
 
   return (
@@ -112,7 +197,7 @@ export default function CreateChat() {
             </div>
             
             <div className="max-h-[300px] overflow-y-auto space-y-2 border rounded-md p-2">
-              {filteredFriends.length > 0 ? filteredFriends.map(friend => (
+              {friends.length > 0 ? friends.map(friend => (
                 <div 
                   key={friend.id}
                   className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
@@ -125,9 +210,7 @@ export default function CreateChat() {
                       <AvatarImage src={friend.avatar} alt={friend.name} />
                       <AvatarFallback>{friend.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
-                      friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
-                    } border-2 border-white dark:border-gray-900`}></span>
+                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900`}></span>
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">{friend.name}</p>
@@ -136,7 +219,7 @@ export default function CreateChat() {
                 </div>
               )) : (
                 <div className="text-center py-6 text-muted-foreground">
-                  No friends found matching "{searchQuery}"
+                  Please add some friend to start a chat
                 </div>
               )}
             </div>
@@ -145,7 +228,7 @@ export default function CreateChat() {
               <div className="flex items-center gap-2">
                 <span>Selected:</span>
                 <Badge variant="secondary">
-                  {mockFriends.find(f => f.id.toString() === selectedFriend)?.name}
+                  {friends.find(f => f.id.toString() === selectedFriend)?.name}
                 </Badge>
               </div>
             )}
@@ -181,7 +264,7 @@ export default function CreateChat() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Enter your friend's username to send them a friend request
+                  {message}
                 </p>
               </div>
             </div>

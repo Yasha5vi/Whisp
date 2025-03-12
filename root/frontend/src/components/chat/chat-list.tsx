@@ -14,21 +14,23 @@ export default function ChatList() {
       selectChat(chatId)
     }
   }
-
+  // console.log(chats);
   return (
     <div>
-      {chats.map((item) => (
+      {chats.length > 0 && chats.map((item) => (
         <ChatListItem
-          key={item.id}
-          id={item.id}
+          key={item._id}
+          uId={item.uId}
+          id={item._id}
           avatar={item.avatar}
           name={item.name}
-          message={item.message}
+          message={item.lastMessage}
           time={item.time}
-          active={item.id === selectedChatId}
-          onClick={() => handleChatSelect(item.id)}
+          active={item._id === selectedChatId}
+          onClick={() => handleChatSelect(item._id)}
         />
       ))}
+      {chats.length == 0 && (<div className="flex item-center justify-center ">Please add a friend</div>)}
     </div>
   )
 }

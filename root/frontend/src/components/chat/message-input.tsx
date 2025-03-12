@@ -5,13 +5,41 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useChat } from "@/contexts/chat-context"
+import axios from "axios"
+import useIncomingMessages from "@/hooks/useIncomingMessages"
+import { useSocket } from "@/contexts/socketContext"
 
 export default function MessageInput() {
-  const { currentMessage, setCurrentMessage, sendMessage } = useChat()
-  
-  const handleSendMessage = () => {
+  const { selectedChat, currentMessage, setCurrentMessage, sendMessage } = useChat()
+  const socket = useSocket();
+
+  const handleSendMessage = async () => {
     if (currentMessage.trim()) {
-      sendMessage(currentMessage)
+      try {
+        // Code that might throw an error.
+        const receiverId = selectedChat?.uId
+        const content = currentMessage;
+        const res = await axios.post("http://localhost:3000/api/message/send",{
+          receiverId,content
+        },{ withCredentials:true })
+        if(res && socket){
+          // console.log(res);
+          sendMessage(currentMessage)
+          // socket.emit("newMessage", {
+          //   roomId: selectedChat?._id,
+          //   message: res.data.data, // the message object returned from the backend
+          // });
+        }else{
+          throw new Error("Message not sent");
+        }
+      } catch (error: unknown) {
+        // Type narrow the error.
+        if (error instanceof Error) {
+          console.error("Error message:", error.message);
+        } else {
+          console.error("An unexpected error occurred:", error);
+        }
+      }
     }
   }
   

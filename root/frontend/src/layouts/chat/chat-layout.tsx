@@ -3,9 +3,23 @@ import ChatHeader from "./chat-header"
 import ChatSidebar from "./chat-sidebar"
 import { ChatProvider } from "@/contexts/chat-context"
 import { useChat } from "@/contexts/chat-context"
+import { useSocket } from "@/contexts/socketContext"
+import { useAuth } from "@/contexts/authContext"
+import { useEffect } from "react"
 
 function ChatLayoutContent() {
   const { isSidebarOpen, isMobileView, selectedChatId, closeSidebar } = useChat()
+  const socket = useSocket();
+  const { user } = useAuth();
+
+  // Join the personal room as soon as the user is available
+  useEffect(() => {
+    if (socket && user) {
+      socket.emit("joinRoom", user._id);
+      // console.log(`User ${user._id} joined their personal room.`);
+    }
+  }, [socket, user]);
+
 
   return (
     <div className="flex flex-col h-screen bg-background text-gray-800 dark:text-white">

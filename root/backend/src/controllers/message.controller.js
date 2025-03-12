@@ -28,6 +28,42 @@ const findOrCreateConversation = async(userId1,userId2)=>{
     return conversation
 }
 
+const createConversation = asyncHandler(async(req,res)=>{
+    const { userId1,userId2 } = req.body;
+    const participants = [userId1,userId2].sort();
+
+    let conversation = await Conversation.findOne(
+        {
+            participants,
+            type:"one-to-one"
+        }
+    ) 
+    if(conversation){
+        return res.status(200).json(
+            new ApiResponse(200,conversation,"chat already existed")
+        )
+    }else{
+        conversation = new Conversation(
+            {
+                type:"one-to-one",
+                participants,
+            }
+        );
+        await conversation.save();
+        const io = req.app.get("io");
+        
+        if(io){
+            io.to(userId1).emit("conversationCreated", conversation);
+            io.to(userId2).emit("conversationCreated", conversation);
+            return res.status(200).json(
+                new ApiResponse(200,conversation,"chat created")
+            )
+        }else{
+            throw new ApiError(500,"Socket.io instance not found on req.app")
+        }
+    }
+})
+
 const sendMessage = asyncHandler( async(req,res)=>{
     // console.log("sendMessage working");
     const senderId = req.user._id;
@@ -51,7 +87,7 @@ const sendMessage = asyncHandler( async(req,res)=>{
         await conversation.save();
 
         const io = req.app.get("io");
-        io.to(receiverId).emit("message", newMessage);
+        io.to(conversation._id.toString()).emit("newMessage", newMessage);
         // console.log("hree");
         return res.status(200).json(
             new ApiResponse(200,newMessage,"Message Sent Successfully")
@@ -99,6 +135,22 @@ const getChats = asyncHandler( async(req,res)=>{
     }
 })
 
+const getUser = asyncHandler( async(req,res)=>{
+    // console.log(req.body);
+    const { rcvId , username} = req.body;
+    const _id = rcvId;
+    const rcv_user = await User.findOne({
+        $or:[{ username }, { _id }]
+    })
+    if(rcv_user){ 
+        return res.status(200).json(
+            new ApiResponse(200,rcv_user,"User found")
+        )
+    }else{
+        throw new ApiError(500,"Error fetching chat details");
+    }
+})
+
 const deleteChats = asyncHandler( async(req,res)=>{
     console.log("delete Chats working")
     // const { conversationId } = req.body;
@@ -139,6 +191,8 @@ export {
     sendMessage,
     getMessage,
     getChats,
+    getUser,
     deleteChats,
     createGroupChatHandler,
+    createConversation,
 }

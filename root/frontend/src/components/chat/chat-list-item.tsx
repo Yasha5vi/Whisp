@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface ChatListItemProps {
   id: string
+  uId:String
   avatar: string
   name: string
   message: string
@@ -12,13 +13,12 @@ interface ChatListItemProps {
 
 export default function ChatListItem({ id, avatar, name, message, time, active = false, onClick }: ChatListItemProps) {
   // Check if this message appears to be from the user based on the time
-  const isLastMessageFromUser = time === "Just now" || message.startsWith("You: ");
+  // const isLastMessageFromUser = time === "Just now" || lastMessage.startsWith("You: ");
   
   // Format the message to indicate if it was sent by the user
-  const displayMessage = isLastMessageFromUser && !message.startsWith("You: ") 
-    ? `You: ${message}`
-    : message;
-  
+  // const displayMessage = isLastMessageFromUser && !lastMessage.startsWith("You: ") 
+  //   ? `You: ${lastMessage}`
+  //   : message;
   return (
     <div 
       className={`
@@ -33,7 +33,7 @@ export default function ChatListItem({ id, avatar, name, message, time, active =
       <Avatar className="h-10 w-10">
         <AvatarImage src={avatar} alt={name} />
         <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-      </Avatar>
+      </Avatar> 
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
           <span className={`font-medium ${active ? "text-gray-900 dark:text-white" : "text-gray-800 dark:text-gray-100"}`}>
@@ -41,12 +41,8 @@ export default function ChatListItem({ id, avatar, name, message, time, active =
           </span>
           <span className="text-xs text-gray-500 dark:text-gray-400">{time}</span>
         </div>
-        <p className={`text-sm truncate ${
-          isLastMessageFromUser 
-            ? "font-medium text-gray-700 dark:text-gray-300" 
-            : "text-gray-500 dark:text-gray-400"
-        }`}>
-          {displayMessage}
+        <p className={`text-sm truncate text-gray-500 dark:text-gray-400`}>
+          {message}
         </p>
       </div>
     </div>

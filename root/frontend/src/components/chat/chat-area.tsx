@@ -5,12 +5,36 @@ import MessageList from "./message-list"
 import MessageInput from "./message-input"
 import { useChat } from "@/contexts/chat-context"
 import { useParams } from "react-router-dom"
+import axios from "axios"
+import { useAuth } from "@/contexts/authContext"
+import useIncomingMessages from "@/hooks/useIncomingMessages";
+
+const getMessages = async(conversationId:any)=>{
+  try {
+    const res = await axios.get("http://localhost:3000/api/message/getMessage",{
+        params:{conversationId},
+        withCredentials: true 
+      }
+    );
+    // console.log(res.data.data);
+    return res.data.data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+    } else {
+      console.error("An unexpected error occurred");
+    }
+  }
+}
 
 export default function ChatArea() {
   const { id } = useParams<{ id: string }>()
   const { selectedChatId, selectChat, chats, chatMessages, setChatMessages, isMobileView, isSidebarOpen } = useChat()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  
+  const { user } = useAuth();
+
+  useIncomingMessages();
+
   // Effect to handle URL parameter changes
   useEffect(() => {
     if (id && id !== selectedChatId) {
@@ -18,22 +42,48 @@ export default function ChatArea() {
     }
   }, [id, selectedChatId, selectChat])
   
-  const selectedChat = chats.find(chat => chat.id === selectedChatId)
+  const selectedChat = chats.find(chat => chat._id === selectedChatId)
   
   // Effect to initialize default messages
   useEffect(() => {
     if (selectedChatId && selectedChat && !chatMessages[selectedChatId]) {
-      const defaultMessages = [
-        {
-          id: "1",
-          type: "received" as const,
-          sender: selectedChat?.name,
-          avatar: selectedChat?.avatar,
-          content: "Hi there! How can I help you today?",
-          time: "5 minutes ago",
+      (async ()=>{
+        const fetchedMessages = await getMessages(selectedChatId);
+
+        if(fetchedMessages){
+          const mappedMessages = await Promise.all(
+            fetchedMessages.map(async(msg:any)=>{
+              // console.log(msg);
+              let type = "";
+              if(msg.senderId == user._id){
+                type = "sent";
+              }else{
+                type = "received";
+              }
+              return {
+                id:msg._id,
+                type:type,
+                sender: selectedChat?.name,
+                avatar: selectedChat?.avatar,
+                content:msg.content,
+                time:new Date(msg.createdAt).toLocaleDateString(),
+              }
+            })
+          )
+          setChatMessages(selectedChatId, mappedMessages.reverse())
         }
-      ]
-      setChatMessages(selectedChatId, defaultMessages)
+      })()
+      // const defaultMessages = [
+      //   {
+      //     id: "1",
+      //     type: "received" as const,
+      //     sender: selectedChat?.name,
+      //     avatar: selectedChat?.avatar,
+      //     content: "Hi there! How can I help you today?",
+      //     time: "5 minutes ago",
+      //   }
+      // ]
+      // setChatMessages(selectedChatId, defaultMessages)
     }
   }, [selectedChatId, selectedChat, chatMessages, setChatMessages])
 

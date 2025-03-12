@@ -1,12 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
+import axios from 'axios'
 
 export interface ChatItem {
-  id: string
+  _id: string
+  uId:String
   avatar: string
   name: string
-  message: string
+  lastMessage: string
   time: string
   active?: boolean
 }
@@ -28,8 +30,9 @@ interface ChatData {
 
 interface ChatContextType {
   chats: ChatItem[]
-  setChats: (chats: ChatItem[]) => void
+  setChats: React.Dispatch<React.SetStateAction<ChatItem[]>>//(chats: ChatItem[]) => void
   selectedChatId: string | null
+  selectedChat: ChatItem | null
   selectChat: (id: string) => void
   chatMessages: Record<string, Message[]>
   setChatMessages: (id: string, messages: Message[]) => void
@@ -48,6 +51,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined)
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [chats, setChats] = useState<ChatItem[]>([])
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const [selectedChat, setSelectedChat] = useState<ChatItem | null>(null)
   const [chatMessages, setChatMessages] = useState<Record<string, Message[]>>({})
   const [currentMessage, setCurrentMessage] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -67,9 +71,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const selectChat = useCallback((id: string) => {
     if (id !== selectedChatId) {
       setSelectedChatId(id)
+
+      const chat = chats.find(chat => chat._id === id) || null
+      setSelectedChat(chat)
+
       setChats(prev => prev.map(chat => ({
         ...chat,
-        active: chat.id === id
+        active: chat._id === id
       })))
       
       // Close sidebar automatically on mobile when selecting a chat
@@ -77,7 +85,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         setIsSidebarOpen(false)
       }
     }
-  }, [selectedChatId, isMobileView])
+  }, [selectedChatId, chats, isMobileView])
 
   const updateChatMessages = (id: string, messages: Message[]) => {
     setChatMessages(prev => ({
@@ -95,13 +103,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       content,
       time: "Just now"
     }
-    
+    // console.log(newMessage); 
+    // const receiverId = selectedChat?.uId
+    // console.log("Receiver ID:", receiverId)
     // Update chat messages
     updateChatMessages(selectedChatId, [...(chatMessages[selectedChatId] || []), newMessage])
     
     // Update the chat list item to show the last message
     setChats(prev => prev.map(chat => {
-      if (chat.id === selectedChatId) {
+      if (chat._id === selectedChatId) {
         return {
           ...chat,
           message: content.length > 30 ? content.substring(0, 30) + "..." : content,
@@ -124,6 +134,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         chats,
         setChats,
         selectedChatId,
+        selectedChat,
         selectChat,
         chatMessages,
         setChatMessages: updateChatMessages,
