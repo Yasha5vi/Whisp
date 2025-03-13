@@ -47,7 +47,11 @@ export default function CreateChat() {
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null)
   const [newFriendUsername, setNewFriendUsername] = useState("")
   const [message,setMessage] = useState("Enter your friend's username to send them a friend request");
-  const { friends, sendFriendRequest ,friendRequestsSent } = useFriends();
+  const { friends, 
+    sendFriendRequest ,
+    friendRequestsSent, 
+    friendRequestsReceived } = useFriends();
+
   const { user } = useAuth();
   const socket = useSocket();
   // const socket = useSocket();
@@ -112,6 +116,15 @@ export default function CreateChat() {
     return false;
   }
 
+  const isAlreadyReceived = (id:any)=>{
+    for(let i=0;i<friendRequestsReceived.length;i++){
+      if(id === friendRequestsReceived[i].id){
+        return true;
+      }
+    }
+    return false;
+  }
+
   const handleAddFriend = async () => {
     if (!newFriendUsername) return
     setIsAddingFriend(true)
@@ -130,6 +143,8 @@ export default function CreateChat() {
         setMessage(`${newFriendUsername} is already your friend`)
       }else if(isAlreadySent(res.data.data._id)){
         setMessage(`You have already sent ${newFriendUsername} a friend request`)
+      }else if(isAlreadyReceived(res.data.data._id)){
+        setMessage(`You have already received a request from ${newFriendUsername}, please respond to it`);
       }else{
         const id = res.data.data._id;
         const username = res.data.data.username;
