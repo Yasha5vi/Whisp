@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { UserPlus } from "lucide-react"
 import ChatListItem from "./chat-list-item"
 import { useChat } from "@/contexts/chat-context"
 
@@ -30,7 +31,12 @@ export default function ChatList() {
           onClick={() => handleChatSelect(item._id)}
         />
       ))}
-      {chats.length == 0 && (<div className="flex item-center justify-center ">Please add a friend</div>)}
+      {chats.length == 0 && (
+        <div className="flex items-center text-xl justify-center mx-auto mt-8">
+          <UserPlus className="mr-2" />
+          Please add a friend
+        </div>
+      )}
     </div>
   )
 }
