@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { useAuth } from "@/contexts/authContext";
+import { API_URL } from "@/config/urlConfig";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +31,7 @@ export default function Login() {
       // Post credentials to the login API.
       // Ensure that withCredentials is true so that cookies are set.
       await axios.post(
-        "http://localhost:3000/api/users/login",
+        API_URL+"/api/users/login",
         {
           username,
           email,

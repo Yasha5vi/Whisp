@@ -8,10 +8,11 @@ import { useParams } from "react-router-dom"
 import axios from "axios"
 import { useAuth } from "@/contexts/authContext"
 import useIncomingMessages from "@/hooks/useIncomingMessages";
+import { API_URL } from "@/config/urlConfig"
 
 const getMessages = async(conversationId:any)=>{
   try {
-    const res = await axios.get("http://localhost:3000/api/message/getMessage",{
+    const res = await axios.get(API_URL+"/api/message/getMessage",{
         params:{conversationId},
         withCredentials: true 
       }

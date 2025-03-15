@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "@/config/urlConfig";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -14,7 +15,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Connect to your socket server (adjust URL as needed)
-    const newSocket = io("http://localhost:3000", {
+    const newSocket = io(API_URL, {
       withCredentials: true,
     });
     setSocket(newSocket);

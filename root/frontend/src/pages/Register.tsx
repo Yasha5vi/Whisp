@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import axios from "axios"
+import { API_URL } from "../config/urlConfig"
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
@@ -26,7 +27,7 @@ export default function Register() {
   const handleClick = async ()=>{
     // console.log(formData);
     try{
-      const res = await axios.post("http://localhost:3000/api/users/register",formData);
+      const res = await axios.post(API_URL+"/api/users/register",formData);
       setMessage(res.data.message);
     }catch(err : unknown){
       if (axios.isAxiosError(err)) {

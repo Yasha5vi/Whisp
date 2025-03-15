@@ -6,6 +6,7 @@ import React, {
     ReactNode,
   } from "react";
   import axios from "axios";
+import { API_URL } from "@/config/urlConfig";
   
   type AuthContextType = {
     user: any;
@@ -32,7 +33,7 @@ import React, {
     // Verify the current session by calling the /api/auth/me endpoint.
     const verifySession = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/auth/me", {
+        const response = await axios.get(API_URL+"/api/auth/me", {
           withCredentials: true,
         });
         // Expecting a response like: { user: { ... } }

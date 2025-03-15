@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, ReactNode } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "./authContext";
+import { API_URL } from "@/config/urlConfig";
 
 // Define the Friend interface
 export interface Friend {
@@ -54,14 +55,14 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 
         const fetchFriendsData = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/friends/getFriend",{ 
+                const res = await axios.get(API_URL+"/api/friends/getFriend",{ 
                     withCredentials: true 
                 });
                 // console.log(res.data.data);
                 if(res){
                     const friendJson = await Promise.all((res.data.data).map(async (id:any)=>{
                         try{
-                            const userfriend = await axios.post("http://localhost:3000/api/message/getUser",{
+                            const userfriend = await axios.post(API_URL+"/api/message/getUser",{
                                 rcvId:id
                             },{withCredentials:true})
                             if(userfriend){
@@ -94,13 +95,13 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
         
         const fetchFriendSentRequest = async () =>{
             try{
-                const res = await axios.get("http://localhost:3000/api/friends/getSent",{
+                const res = await axios.get(API_URL+"/api/friends/getSent",{
                     withCredentials:true
                 })
                 if(res){
                     const friendRequestSentJson = await Promise.all((res.data.data).map(async (id:any)=>{
                         try{
-                            const userfriend = await axios.post("http://localhost:3000/api/message/getUser",{
+                            const userfriend = await axios.post(API_URL+"/api/message/getUser",{
                                 rcvId:id
                             },{withCredentials:true})
                             if(userfriend){
@@ -134,13 +135,13 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
         
         const fetchFriendReceivedRequest = async () =>{
             try{
-                const res = await axios.get("http://localhost:3000/api/friends/getReceived",{
+                const res = await axios.get(API_URL+"/api/friends/getReceived",{
                     withCredentials:true
                 })
                 if(res){
                     const friendRequestReceivedJson = await Promise.all((res.data.data).map(async (id:any)=>{
                         try{
-                            const userfriend = await axios.post("http://localhost:3000/api/message/getUser",{
+                            const userfriend = await axios.post(API_URL+"/api/message/getUser",{
                                 rcvId:id
                             },{withCredentials:true})
                             if(userfriend){
@@ -189,7 +190,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
     const sendFriendRequest = async ({id,name,username}:any) => {
         try{
             // console.log(id+' '+username+' '+name);
-            const res = await axios.post("http://localhost:3000/api/friends/send",{
+            const res = await axios.post(API_URL+"/api/friends/send",{
                 receiverId:id
             },{withCredentials:true});
             
@@ -210,7 +211,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
     const acceptFriendRequest = async (senderId: string) => {
         try {
             // console.log(senderId);
-            const res = await axios.post("http://localhost:3000/api/friends/accept", { 
+            const res = await axios.post(API_URL+"/api/friends/accept", { 
                 senderId 
             }, { withCredentials: true });
     
@@ -234,7 +235,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
     const rejectFriendRequest = async(senderId: string) => {
         try {
             // console.log(senderId);
-            await axios.post("http://localhost:3000/api/friends/reject", { 
+            await axios.post(API_URL+"/api/friends/reject", { 
                 senderId 
             }, { withCredentials: true });
             setFriendRequestsReceived((prev) => prev.filter((req) => req.id !== senderId));
@@ -246,7 +247,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
     const unsentFriendRequest = async (receiverId: string) => {
         try {
             // console.log(senderId)
-            await axios.post("http://localhost:3000/api/friends/removeRequest", { 
+            await axios.post(API_URL+"/api/friends/removeRequest", { 
                 receiverId 
             }, { withCredentials: true });
             setFriendRequestsSent((prev) => prev.filter((req) => req.id !== receiverId));

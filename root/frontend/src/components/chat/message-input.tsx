@@ -8,6 +8,7 @@ import { useChat } from "@/contexts/chat-context"
 import axios from "axios"
 import useIncomingMessages from "@/hooks/useIncomingMessages"
 import { useSocket } from "@/contexts/socketContext"
+import { API_URL } from "@/config/urlConfig"
 
 export default function MessageInput() {
   const { selectedChat, currentMessage, setCurrentMessage, sendMessage } = useChat()
@@ -19,7 +20,7 @@ export default function MessageInput() {
         // Code that might throw an error.
         const receiverId = selectedChat?.uId
         const content = currentMessage;
-        const res = await axios.post("http://localhost:3000/api/message/send",{
+        const res = await axios.post(API_URL+"/api/message/send",{
           receiverId,content
         },{ withCredentials:true })
         if(res && socket){

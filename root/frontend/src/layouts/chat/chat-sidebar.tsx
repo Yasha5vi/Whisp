@@ -7,10 +7,11 @@ import ChatList from "@/components/chat/chat-list"
 import axios from "axios"
 import { useAuth } from "@/contexts/authContext"
 import { useSocket } from "@/contexts/socketContext";
+import { API_URL } from "@/config/urlConfig"
 
 const getChats = async()=>{
   try {
-    const res = await axios.get("http://localhost:3000/api/message/getChats",{
+    const res = await axios.get(API_URL+"/api/message/getChats",{
       withCredentials:true
     });
     if(res){
@@ -52,7 +53,7 @@ export default function ChatSidebar() {
               }
               // console.log(rcvId);
               try{
-                const res = await axios.post("http://localhost:3000/api/message/getUser",{
+                const res = await axios.post(API_URL+"/api/message/getUser",{
                   rcvId },{
                   withCredentials:true
                 })

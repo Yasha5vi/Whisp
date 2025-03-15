@@ -4,6 +4,7 @@ import { useChat } from "@/contexts/chat-context";
 import { useAuth } from "@/contexts/authContext";
 import axios from "axios";
 import { useFriends } from "@/contexts/friendContext";
+import { API_URL } from "@/config/urlConfig";
 
 interface FriendRequestUpdatePayload {
   action: "accepted" | "rejected" | "cancelled" | "sent";
@@ -48,7 +49,7 @@ export default function useIncomingMessages() {
       }
       // console.log(rcvId);
       try{
-        const res = await axios.post("http://localhost:3000/api/message/getUser",{
+        const res = await axios.post(API_URL+"/api/message/getUser",{
           rcvId },{
           withCredentials:true
         })
@@ -81,7 +82,7 @@ export default function useIncomingMessages() {
       // console.log(data);
       if (data.action === "sent" && data.receiverId === user._id) {
         try{
-          const res = await axios.post("http://localhost:3000/api/message/getUser",{
+          const res = await axios.post(API_URL+"/api/message/getUser",{
             rcvId:data.senderId
           },{withCredentials:true});
           // console.log(res);
@@ -105,7 +106,7 @@ export default function useIncomingMessages() {
       }else if(data.action === "accepted"){
 
         try {
-          const res = await axios.post("http://localhost:3000/api/message/getUser", {
+          const res = await axios.post(API_URL+"/api/message/getUser", {
             rcvId: data.receiverId,
           }, { withCredentials: true });
           const friendData = {

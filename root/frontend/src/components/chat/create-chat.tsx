@@ -31,6 +31,7 @@ import { useSocket } from "@/contexts/socketContext"
 import { useChat } from '@/contexts/chat-context'
 import { useNavigate } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
+import { API_URL } from '@/config/urlConfig'
 
 // // Mock data for demonstration
 // const mockFriends = [
@@ -65,7 +66,7 @@ export default function CreateChat() {
     // Simulate API call
     // console.log(user);
     try {
-      const res = await axios.post("http://localhost:3000/api/message/createConversation",{
+      const res = await axios.post(API_URL+"/api/message/createConversation",{
         userId1:user._id,
         userId2:selectedFriend
       },{withCredentials:true});
@@ -130,7 +131,7 @@ export default function CreateChat() {
     setIsAddingFriend(true)
     // Simulate API call
     try{
-      const res = await axios.post("http://localhost:3000/api/message/getUser",{
+      const res = await axios.post(API_URL+"/api/message/getUser",{
         username:newFriendUsername,
       },{withCredentials:true})
 
